@@ -1,4 +1,3 @@
-pub use clap;
 use core::str::FromStr;
 
 /// Validate a signed or unsigned integer value.
@@ -16,10 +15,10 @@ use core::str::FromStr;
 ///
 /// ```
 /// use clap::Clap;
-/// use clap_validators::validate_integer;
+/// use clap_parse::number_range;
 ///
 /// fn less_than_100(s: &str) -> Result<u8, String> {
-///     validate_integer(s, 0, 99)
+///     number_range(s, 0, 99)
 /// }
 ///
 /// #[derive(Clap, Debug)]
@@ -36,24 +35,24 @@ use core::str::FromStr;
 ///
 /// ## Error Messages
 ///
-/// Values exceeding this range will show an error message similar to this:
+/// Values exceeding 99 will show an error message similar to this:
 ///
-/// ```bash
+/// ```text
 /// error: Invalid value for '--cents <cents>': exceeds maximum of 99
 /// ```
 ///
 /// Values that are not numbers will show an error message similar to this:
 ///
-/// ```bash
+/// ```text
 /// error: Invalid value for '--cents <cents>': invalid digit found in string
 /// ```
 ///
 /// Values result in integer overflow will show an error message like this:
 ///
-/// ```bash
+/// ```text
 /// error: Invalid value for '--cents <cents>': number too large to fit in target type
 /// ```
-pub fn validate_integer<T: Ord + PartialOrd + std::fmt::Display>(
+pub fn number_range<T: Ord + PartialOrd + std::fmt::Display>(
     s: &str,
     min: T,
     max: T,

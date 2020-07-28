@@ -1,5 +1,5 @@
 use clap::Clap;
-use clap_validators::validate_integer;
+use clap_parse::number_range;
 
 // standalone basic tests
 #[cfg(test)]
@@ -10,7 +10,7 @@ mod basic {
         ($NAME:ident, $VAL:expr, $MIN:expr, $MAX:expr, $RESULT:expr) => {
             #[test]
             fn $NAME() {
-                assert_eq!(validate_integer($VAL, $MIN, $MAX), Ok($RESULT));
+                assert_eq!(number_range($VAL, $MIN, $MAX), Ok($RESULT));
             }
         };
     }
@@ -19,10 +19,7 @@ mod basic {
         ($NAME:ident, $VAL:expr, $MIN:expr, $MAX:expr, $RESULT:expr) => {
             #[test]
             fn $NAME() {
-                assert_eq!(
-                    validate_integer($VAL, $MIN, $MAX),
-                    Err(String::from($RESULT))
-                );
+                assert_eq!(number_range($VAL, $MIN, $MAX), Err(String::from($RESULT)));
             }
         };
     }
@@ -47,7 +44,7 @@ mod basic {
     #[test]
     #[should_panic]
     fn min_max_debug_assert() {
-        let _ = validate_integer("", 2, 1);
+        let _ = number_range("", 2, 1);
     }
 }
 
@@ -57,7 +54,7 @@ mod integration {
     use super::*;
 
     fn human_livable_temperature(s: &str) -> Result<i8, String> {
-        validate_integer(s, -40, 60)
+        number_range(s, -40, 60)
     }
 
     #[derive(Clap, Debug)]

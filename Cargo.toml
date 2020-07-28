@@ -1,12 +1,12 @@
 [package]
-name = "clap-validators"
+name = "clap-parse"
 version = "0.1.0"
 authors = ["Alex M. <alexmgit@protonmail.com>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
-description = "Validators for clap v3."
+description = "Parsers for clap v3."
 edition = "2018"
 license = "MIT"
 
-[dependencies]
+[dev-dependencies]
 clap = "3.0.0-beta.1"
