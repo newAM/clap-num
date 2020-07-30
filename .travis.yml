@@ -1,0 +1,41 @@
+language: rust
+matrix:
+  include:
+  - env: TARGET=x86_64-unknown-linux-gnu
+    os: linux
+    rust: stable
+  - env: TARGET=x86_64-unknown-linux-gnu
+    os: linux
+    rust: beta
+  - env: TARGET=x86_64-unknown-linux-gnu
+    os: linux
+    rust: nightly
+cache: cargo
+before_cache:
+  - chmod -R a+r $HOME/.cargo
+before_script:
+  - |
+    if [ "$TRAVIS_RUST_VERSION" = nightly]; then
+      rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
+    else
+      rustup component add clippy
+    fi
+script:
+  - rustup target add "$TARGET"
+  - cargo clippy --all-targets --all-features -- -D warnings
+  - cargo build --verbose --target "$TARGET" --all
+  - cargo test --verbose --target "$TARGET" --all
+  - cargo package --verbose --target "$TARGET"
+deploy:
+  skip_cleanup: true
+  provider: cargo
+  token:
+    secure: CyAhIpNYevHC4eygiw6zTABal9k4/IbgmI+A9pPe3Dy+7sqR46TIciyRDLUoQZvHJBLY+AjyyRQeJhQb7AIFW326ginbm5x0Win8/gkF77yPaECTF4qbFqJCmREs+hTL14426Ob2jr7xCvzdK9/0ihFivRcasXCQU0wnpwp+xLh0JCOkvlZL8dsotqRQ154xNoVWfBFZwW267o7/0eF1JW9AANDZOBJNF4XbPQWXZ6C1X8AROicmEqfQjzuHgiPnJ7OsohffoJB4PtudZ6mZ7fnuF80Ii8zgSxDFDRPCnX/BUzZTfPAQF7M296IJXv+PGBcOoEPDIZSUUB00YFUJSZsOQiWWZBsIH9mW04Vr8fUlWs/CsINtsLdVP4OM0sJk6MG05ZbixSGti5uSUZkUbPIDPHCaMWKyCYFovJ6Lrq5Q1OGRen77feJOQ7P7GQxSDP2Oo8UtrsEccxUcuzNhMOKIZNpAsFpAYCjyklKW0b58q6wL6KzvdSmlaJH6FTbINW7YJZ12OjoxiNyGn6Cl09Eh+D9bd/X3W2Q3ukOkbToSa9XPiKilNMr1mUiQ9CxqDRLm7Z/m/Na3TtfGUicKEcg2EH5zOIFTw8hieGCXeBninTsM9SsPRirRd8zizgrUhF39w5hMDE5ZFl+uUOla1gKBTnQu8S4QY9tSFO92TfM=
+  on:
+    branch: master
+    tags: true
+    condition: "$TRAVIS_RUST_VERSION = stable && $TRAVIS_OS_NAME = linux && $TARGET
+      = x86_64-unknown-linux-gnu"
+notifications:
+  email:
+    on_success: never
