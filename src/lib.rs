@@ -27,7 +27,7 @@
 //! ```
 //!
 //! [clap v3]: https://github.com/clap-rs/clap
-#![doc(html_root_url = "https://docs.rs/clap-num/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/clap-num/0.1.1")]
 #![deny(warnings, missing_docs)]
 
 use core::convert::TryFrom;

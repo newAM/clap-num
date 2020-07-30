@@ -12,7 +12,8 @@ strings provided by [clap v3].
 
 ## Example
 
-Allow values between 800 Hz and 3.333 MHz, with SI symbols.
+This example allow values for `--frequency` between 800 Hz and 3.333 MHz,
+with SI symbols.
 
 ```rust
 use clap::Clap;

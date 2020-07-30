@@ -1,12 +1,13 @@
 [package]
 name = "clap-num"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Alex M. <alexmgit@protonmail.com>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
 description = "Number parsers for clap v3."
 edition = "2018"
 license = "MIT"
+readme = "README.md"
 
 [badges]
 maintenance = { status = "as-is" }
