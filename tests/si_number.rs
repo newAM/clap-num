@@ -1,3 +1,4 @@
+use clap::Clap;
 use clap_num::si_number;
 
 // standalone basic tests
@@ -71,7 +72,7 @@ mod basic {
         1_123_456_789_987_654_321_000_000u128
     );
 
-    neg!(leading_si, "k1", u16, "no value found before SI character");
+    neg!(leading_si, "k1", u16, "no value found before SI symbol");
 
     neg!(overflow, "1k", u8, "number too large to fit in target type");
     neg!(
@@ -82,4 +83,52 @@ mod basic {
     );
 
     neg!(multiple_suffix, "1kk", u16, "invalid digit found in string");
+}
+
+// integration tests with clap
+#[cfg(test)]
+mod integration {
+    use super::*;
+
+    #[derive(Clap)]
+    struct Args {
+        #[clap(long, parse(try_from_str=si_number))]
+        resistance: u128,
+    }
+
+    // positive path
+    macro_rules! pos {
+        ($NAME:ident, $VAL:expr, $RESULT:expr) => {
+            #[test]
+            fn $NAME() {
+                let opt = Args::parse_from(&["", "--resistance", $VAL]);
+                assert_eq!(opt.resistance, $RESULT);
+            }
+        };
+    }
+
+    // negative path
+    macro_rules! neg {
+        ($NAME:ident, $VAL:expr, $RESULT:expr) => {
+            #[test]
+            fn $NAME() {
+                let opt = Args::try_parse_from(&["", "--resistance", $VAL]);
+                match opt {
+                    Err(e) => {
+                        assert!(format!("{:?}", e).contains($RESULT));
+                    }
+                    _ => unreachable!(),
+                };
+            }
+        };
+    }
+
+    pos!(simple_0, "1k123", 1123);
+    pos!(simple_1, "456789k123", 456789123);
+    pos!(simple_2, "1M1", 1_100_000);
+
+    neg!(big, "999999999999999999999Y", "too large");
+    neg!(invalid, "1k1k", "invalid digit");
+    neg!(precise, "1k1111", "not an integer");
+    neg!(leading_prefix, "k123", "no value found before SI symbol");
 }

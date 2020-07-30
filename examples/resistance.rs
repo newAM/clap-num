@@ -1,10 +1,10 @@
 use clap::Clap;
 use clap_num::si_number;
 
-#[derive(Clap, Debug)]
+#[derive(Clap)]
 struct Args {
     #[clap(short, long, parse(try_from_str=si_number))]
-    resistance: u8,
+    resistance: u128,
 }
 
 fn main() {

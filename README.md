@@ -10,4 +10,4 @@ clap V3 number parsers.
 This crate contains functions to validate and parse numerical values from
 strings provided by [clap v3].
 
-[clap]: https://github.com/clap-rs/clap
+[clap v3]: https://github.com/clap-rs/clap
