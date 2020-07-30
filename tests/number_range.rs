@@ -1,5 +1,5 @@
 use clap::Clap;
-use clap_parse::number_range;
+use clap_num::number_range;
 
 // standalone basic tests
 #[cfg(test)]
@@ -30,6 +30,7 @@ mod basic {
     pos!(min_limit, "-5", -5i8, -5i8, -5i8);
     pos!(max_limit, "65535", 0, std::u16::MAX, std::u16::MAX);
 
+    neg!(decimal, "1.1", -10i8, 10i8, "invalid digit found in string");
     neg!(min, "-1", 0i8, 0i8, "exceeds minimum of 0");
     neg!(max, "1", 0i8, 0i8, "exceeds maximum of 0");
     neg!(
