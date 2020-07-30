@@ -5,7 +5,8 @@
 //!
 //! # Example
 //!
-//! Allow values between 800 Hz and 3.333 MHz, with SI symbols.
+//! This example allow values for `--frequency` between 800 Hz and 3.333 MHz,
+//! with SI symbols.
 //!
 //! ```
 //! use clap::Clap;
@@ -94,10 +95,16 @@ where
 /// error: Invalid value for '--cents <cents>': invalid digit found in string
 /// ```
 ///
-/// Values result in integer overflow will show an error message like this:
+/// Values result in integer overflow will show an error message similar to this:
 ///
 /// ```text
 /// error: Invalid value for '--cents <cents>': number too large to fit in target type
+/// ```
+///
+/// Values that are exceed the limits will show an error message similar to this:
+///
+/// ```text
+/// error: Invalid value for '--cents <cents>': exceeds maximum of 99
 /// ```
 pub fn number_range<T: Ord + PartialOrd + std::fmt::Display>(
     s: &str,
