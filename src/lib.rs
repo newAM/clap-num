@@ -3,6 +3,28 @@
 //! This crate contains functions to validate and parse numerical values from
 //! strings provided by [clap v3].
 //!
+//! # Example
+//!
+//! Allow values between 800 Hz and 3.333 MHz, with SI symbols.
+//!
+//! ```
+//! use clap::Clap;
+//! use clap_num::si_number_range;
+//!
+//! fn frequency(s: &str) -> Result<u32, String> {
+//!     si_number_range(s, 800, 3_333_000)
+//! }
+//!
+//! #[derive(Clap, Debug)]
+//! struct Args {
+//!     #[clap(short, long, parse(try_from_str=frequency))]
+//!     frequency: Option<u32>,
+//! }
+//!
+//! let args = Args::parse();
+//! println!("{:?}", args);
+//! ```
+//!
 //! [clap v3]: https://github.com/clap-rs/clap
 #![doc(html_root_url = "https://docs.rs/clap-num/0.1.0")]
 #![deny(warnings, missing_docs)]
@@ -52,11 +74,8 @@ where
 ///     #[clap(long, parse(try_from_str=less_than_100))]
 ///     cents: u8,
 /// }
-/// #
-/// # fn main() {
-/// #   let args = Change::parse_from(&["", "--cents", "99"]);
-/// #   assert_eq!(args.cents, 99);
-/// # }
+/// # let args = Change::parse_from(&["", "--cents", "99"]);
+/// # assert_eq!(args.cents, 99);
 /// ```
 ///
 /// To run this example run `cargo run --example change`, giving arguments to
@@ -188,11 +207,8 @@ where
 ///     #[clap(short, long, parse(try_from_str=si_number))]
 ///     resistance: u128,
 /// }
-/// #
-/// # fn main() {
-/// #   let args = Args::parse_from(&["", "--resistance", "1M1"]);
-/// #   assert_eq!(args.resistance, 1_100_000);
-/// # }
+/// # let args = Args::parse_from(&["", "--resistance", "1M1"]);
+/// # assert_eq!(args.resistance, 1_100_000);
 /// ```
 ///
 /// To run this example use `cargo run --example resistance`, giving arguments
@@ -244,12 +260,14 @@ where
 
         let pre = pre
             .checked_mul(&multiplier)
-            .ok_or(OVERFLOW_MSG.to_string())?;
+            .ok_or_else(|| OVERFLOW_MSG.to_string())?;
 
         if pre >= T::zero() {
-            pre.checked_add(&post).ok_or(OVERFLOW_MSG.to_string())
+            pre.checked_add(&post)
+                .ok_or_else(|| OVERFLOW_MSG.to_string())
         } else {
-            pre.checked_sub(&post).ok_or(OVERFLOW_MSG.to_string())
+            pre.checked_sub(&post)
+                .ok_or_else(|| OVERFLOW_MSG.to_string())
         }
     } else {
         // no SI symbol, parse normally
@@ -281,11 +299,8 @@ where
 ///     #[clap(short, long, parse(try_from_str=kilo))]
 ///     resistance: u32,
 /// }
-/// #
-/// # fn main() {
-/// #   let args = Args::parse_from(&["", "--resistance", "999k999"]);
-/// #   assert_eq!(args.resistance, 999_999);
-/// # }
+/// # let args = Args::parse_from(&["", "--resistance", "999k999"]);
+/// # assert_eq!(args.resistance, 999_999);
 /// ```
 ///
 /// [metric prefix]: https://en.wikipedia.org/wiki/Metric_prefix
