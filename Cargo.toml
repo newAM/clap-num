@@ -1,6 +1,6 @@
 [package]
 name = "clap-num"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Alex M. <alexmgit@protonmail.com>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
