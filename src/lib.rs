@@ -27,15 +27,15 @@
 //! ```
 //!
 //! [clap v3]: https://github.com/clap-rs/clap
-#![doc(html_root_url = "https://docs.rs/clap-num/0.1.3")]
-#![deny(warnings, missing_docs)]
+#![doc(html_root_url = "https://docs.rs/clap-num/0.2.0")]
+#![deny(missing_docs)]
 
 use core::convert::TryFrom;
 use core::str::FromStr;
 use num_traits::identities::Zero;
-use num_traits::{CheckedAdd, CheckedMul, CheckedSub};
+use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
 
-fn check_range<T: Ord + PartialOrd + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, String>
+fn check_range<T: Ord + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, String>
 where
     T: FromStr,
     <T as std::str::FromStr>::Err: std::fmt::Display,
@@ -330,5 +330,88 @@ where
     T: Zero,
 {
     let val = si_number(s)?;
+    check_range(val, min, max)
+}
+
+/// Validates an unsigned integer value that can be base-10 or base-16.
+///
+/// The number is assumed to be base-10 by default, it is parsed as hex if the
+/// number is prefixed with `0x`, case insensitive.
+///
+/// # Example
+///
+/// This allows base-10 addresses to be passed normally, or base-16 values to
+/// be passed when prefixed with `0x`.
+///
+/// ```
+/// use clap::Clap;
+/// use clap_num::maybe_hex;
+///
+/// #[derive(Clap)]
+/// struct Args {
+///     #[clap(short, long, parse(try_from_str=maybe_hex))]
+///     address: u32,
+/// }
+/// # let args = Args::parse_from(&["", "-a", "0x10"]);
+/// # assert_eq!(args.address, 16);
+/// ```
+pub fn maybe_hex<T: Num + sign::Unsigned>(s: &str) -> Result<T, String>
+where
+    <T as num_traits::Num>::FromStrRadixErr: std::fmt::Display,
+{
+    const HEX_PREFIX: &str = "0x";
+    const HEX_PREFIX_LEN: usize = HEX_PREFIX.len();
+
+    let result = if s.to_ascii_lowercase().starts_with(HEX_PREFIX) {
+        T::from_str_radix(&s[HEX_PREFIX_LEN..], 16)
+    } else {
+        T::from_str_radix(s, 10)
+    };
+
+    match result {
+        Ok(v) => Ok(v),
+        Err(e) => Err(format!("{}", e)),
+    }
+}
+
+/// Validates an unsigned integer value that can be base-10 or base-16 within
+/// a range.
+///
+/// This effectively combines [`maybe_hex`] and [`number_range`], see the
+/// documentation for those functions for details.
+///
+/// # Example
+///
+/// This extends the example in [`maybe_hex`], and only allows a range of
+/// addresses from `0x100` to `0x200`.
+///
+/// ```
+/// use clap::Clap;
+/// use clap_num::maybe_hex_range;
+///
+/// fn address_in_range(s: &str) -> Result<u32, String> {
+///     maybe_hex_range(s, 0x100, 0x200)
+/// }
+///
+/// #[derive(Clap)]
+/// struct Args {
+///     #[clap(short, long, parse(try_from_str=address_in_range))]
+///     address: u32,
+/// }
+/// # let args = Args::parse_from(&["", "-a", "300"]);
+/// # assert_eq!(args.address, 300);
+/// ```
+///
+/// [`maybe_hex`]: ./fn.maybe_hex.html
+/// [`number_range`]: ./fn.number_range.html
+pub fn maybe_hex_range<T: Num + sign::Unsigned>(s: &str, min: T, max: T) -> Result<T, String>
+where
+    <T as num_traits::Num>::FromStrRadixErr: std::fmt::Display,
+    <T as std::str::FromStr>::Err: std::fmt::Display,
+    T: FromStr,
+    T: std::fmt::Display,
+    T: std::cmp::Ord,
+{
+    let val = maybe_hex(s)?;
     check_range(val, min, max)
 }
