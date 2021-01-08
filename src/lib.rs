@@ -95,13 +95,13 @@ where
 /// error: Invalid value for '--cents <cents>': invalid digit found in string
 /// ```
 ///
-/// Values result in integer overflow will show an error message similar to this:
+/// Values resulting in integer overflow will show an error message similar to this:
 ///
 /// ```text
 /// error: Invalid value for '--cents <cents>': number too large to fit in target type
 /// ```
 ///
-/// Values that are exceed the limits will show an error message similar to this:
+/// Values exceeding the limits will show an error message similar to this:
 ///
 /// ```text
 /// error: Invalid value for '--cents <cents>': exceeds maximum of 99
