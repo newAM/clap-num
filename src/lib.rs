@@ -1,7 +1,7 @@
-//! clap V3 number parsers.
+//! clap number parsers.
 //!
 //! This crate contains functions to validate and parse numerical values from
-//! strings provided by [clap v3].
+//! strings provided by [clap].
 //!
 //! # Example
 //!
@@ -9,16 +9,16 @@
 //! with SI symbols.
 //!
 //! ```
-//! use clap::Clap;
+//! use clap::Parser;
 //! use clap_num::si_number_range;
 //!
-//! fn frequency(s: &str) -> Result<u32, String> {
+//! fn parse_frequency(s: &str) -> Result<u32, String> {
 //!     si_number_range(s, 800, 3_333_000)
 //! }
 //!
-//! #[derive(Clap, Debug)]
+//! #[derive(Parser, Debug)]
 //! struct Args {
-//!     #[clap(short, long, parse(try_from_str=frequency))]
+//!     #[clap(short, long, parse(try_from_str=parse_frequency))]
 //!     frequency: Option<u32>,
 //! }
 //!
@@ -26,11 +26,9 @@
 //! println!("{:?}", args);
 //! ```
 //!
-//! [clap v3]: https://github.com/clap-rs/clap
-#![doc(html_root_url = "https://docs.rs/clap-num/0.2.0")]
+//! [clap]: https://github.com/clap-rs/clap
 #![deny(missing_docs)]
 
-use core::convert::TryFrom;
 use core::str::FromStr;
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
@@ -63,14 +61,14 @@ where
 /// (inclusive).
 ///
 /// ```
-/// use clap::Clap;
+/// use clap::Parser;
 /// use clap_num::number_range;
 ///
 /// fn less_than_100(s: &str) -> Result<u8, String> {
 ///     number_range(s, 0, 99)
 /// }
 ///
-/// #[derive(Clap)]
+/// #[derive(Parser)]
 /// struct Change {
 ///     #[clap(long, parse(try_from_str=less_than_100))]
 ///     cents: u8,
@@ -206,10 +204,10 @@ where
 /// This allows for resistance value to be passed using SI symbols.
 ///
 /// ```
-/// use clap::Clap;
+/// use clap::Parser;
 /// use clap_num::si_number;
 ///
-/// #[derive(Clap)]
+/// #[derive(Parser)]
 /// struct Args {
 ///     #[clap(short, long, parse(try_from_str=si_number))]
 ///     resistance: u128,
@@ -253,12 +251,12 @@ where
         let (pre, post) = if post_si.len() > 1 {
             (
                 pre_si.parse::<T>().map_err(stringify)?,
-                parse_post(&post_si, digits, false)?,
+                parse_post(post_si, digits, false)?,
             )
         // in the format of "1.234k" for 1_234
         } else if let Some(idx) = find_decimal(pre_si) {
             let (pre_dec, post_dec) = s.split_at(idx);
-            let post_dec = parse_post(&post_dec, digits, true)?;
+            let post_dec = parse_post(post_dec, digits, true)?;
             (pre_dec.parse::<T>().map_err(stringify)?, post_dec)
         // no decimal value
         } else {
@@ -294,14 +292,14 @@ where
 /// resistances from 1k to 999.999k.
 ///
 /// ```
-/// use clap::Clap;
+/// use clap::Parser;
 /// use clap_num::si_number_range;
 ///
 /// fn kilo(s: &str) -> Result<u32, String> {
 ///     si_number_range(s, 1_000, 999_999)
 /// }
 ///
-/// #[derive(Clap)]
+/// #[derive(Parser)]
 /// struct Args {
 ///     #[clap(short, long, parse(try_from_str=kilo))]
 ///     resistance: u32,
@@ -344,10 +342,10 @@ where
 /// be passed when prefixed with `0x`.
 ///
 /// ```
-/// use clap::Clap;
+/// use clap::Parser;
 /// use clap_num::maybe_hex;
 ///
-/// #[derive(Clap)]
+/// #[derive(Parser)]
 /// struct Args {
 ///     #[clap(short, long, parse(try_from_str=maybe_hex))]
 ///     address: u32,
@@ -386,14 +384,14 @@ where
 /// addresses from `0x100` to `0x200`.
 ///
 /// ```
-/// use clap::Clap;
+/// use clap::Parser;
 /// use clap_num::maybe_hex_range;
 ///
 /// fn address_in_range(s: &str) -> Result<u32, String> {
 ///     maybe_hex_range(s, 0x100, 0x200)
 /// }
 ///
-/// #[derive(Clap)]
+/// #[derive(Parser)]
 /// struct Args {
 ///     #[clap(short, long, parse(try_from_str=address_in_range))]
 ///     address: u32,

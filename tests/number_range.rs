@@ -1,4 +1,4 @@
-use clap::Clap;
+use clap::Parser;
 use clap_num::number_range;
 
 // standalone basic tests
@@ -58,7 +58,7 @@ mod integration {
         number_range(s, -40, 60)
     }
 
-    #[derive(Clap, Debug)]
+    #[derive(Parser, Debug)]
     struct Thermostat {
         #[clap(
             long,

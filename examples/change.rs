@@ -1,11 +1,11 @@
-use clap::Clap;
+use clap::Parser;
 use clap_num::number_range;
 
 fn less_than_100(s: &str) -> Result<u8, String> {
     number_range(s, 0, 99)
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 struct Change {
     #[clap(long, parse(try_from_str=less_than_100))]
     cents: u8,
