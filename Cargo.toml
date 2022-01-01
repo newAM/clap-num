@@ -1,6 +1,6 @@
 [package]
 name = "clap-num"
-version = "0.2.0"
+version = "1.0.0"
 rust-version = "1.56"  # update MSRV in CI
 authors = ["Alex Martens <alexmgit@protonmail.com>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
