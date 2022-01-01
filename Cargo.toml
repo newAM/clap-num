@@ -11,12 +11,8 @@ repository = "https://github.com/newAM/clap-num/"
 documentation = "https://docs.rs/clap-num"
 readme = "README.md"
 
-[badges]
-maintenance = { status = "as-is" }
-
 [dependencies]
-num-traits = "0.2.12"
+num-traits = "0.2"
 
 [dev-dependencies]
-clap = "3.0.0-beta.2"
-version-sync = "~0.9.1"
+clap = { version = "3", features = ["derive"] }
