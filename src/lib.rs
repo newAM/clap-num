@@ -251,12 +251,12 @@ where
         let (pre, post) = if post_si.len() > 1 {
             (
                 pre_si.parse::<T>().map_err(stringify)?,
-                parse_post(&post_si, digits, false)?,
+                parse_post(post_si, digits, false)?,
             )
         // in the format of "1.234k" for 1_234
         } else if let Some(idx) = find_decimal(pre_si) {
             let (pre_dec, post_dec) = s.split_at(idx);
-            let post_dec = parse_post(&post_dec, digits, true)?;
+            let post_dec = parse_post(post_dec, digits, true)?;
             (pre_dec.parse::<T>().map_err(stringify)?, post_dec)
         // no decimal value
         } else {
