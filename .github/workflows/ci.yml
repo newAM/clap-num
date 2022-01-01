@@ -17,11 +17,16 @@ jobs:
     env:
       RUSTFLAGS: "-D warnings"
       RUSTDOCFLAGS: "-D warnings"
+    strategy:
+      matrix:
+        toolchain:
+          - "1.56" # Update MSRV in Cargo.toml
+          - "stable"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.toolchain }}
       - run: cargo build
       - run: cargo doc
 
