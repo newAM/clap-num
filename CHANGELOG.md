@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed typos in documentation.
 
+### Changed
+- Changed edition from 2018 to 2021.
+
 ## [0.2.0] - 2020-10-18
 ### Added
 - Added `maybe_hex` and `maybe_hex_range` functions.

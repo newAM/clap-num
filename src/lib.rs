@@ -29,7 +29,6 @@
 //! [clap]: https://github.com/clap-rs/clap
 #![deny(missing_docs)]
 
-use core::convert::TryFrom;
 use core::str::FromStr;
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
