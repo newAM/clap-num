@@ -2,7 +2,7 @@
 name = "clap-num"
 version = "1.0.0"
 rust-version = "1.56"  # update MSRV in CI
-authors = ["Alex Martens <alexmgit@protonmail.com>"]
+authors = ["Alex Martens <alex@thinglab.org>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
 description = "Number parsers for clap"
