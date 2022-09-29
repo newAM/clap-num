@@ -15,4 +15,4 @@ readme = "README.md"
 num-traits = "0.2"
 
 [dev-dependencies]
-clap = { version = "3", features = ["derive"] }
+clap = { version = "4", features = ["derive"] }
