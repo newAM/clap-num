@@ -3,7 +3,7 @@ use clap_num::si_number;
 
 #[derive(Parser)]
 struct Args {
-    #[clap(short, long, parse(try_from_str=si_number))]
+    #[clap(short, long, value_parser=si_number::<u128>)]
     resistance: u128,
 }
 

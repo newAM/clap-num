@@ -7,7 +7,7 @@ fn less_than_100(s: &str) -> Result<u8, String> {
 
 #[derive(Parser)]
 struct Change {
-    #[clap(long, parse(try_from_str=less_than_100))]
+    #[clap(long, value_parser=less_than_100)]
     cents: u8,
 }
 

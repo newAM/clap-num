@@ -24,7 +24,7 @@ fn parse_frequency(s: &str) -> Result<u32, String> {
 
 #[derive(Parser, Debug)]
 struct Args {
-    #[clap(short, long, parse(try_from_str=parse_frequency))]
+    #[clap(short, long, value_parser=parse_frequency)]
     frequency: Option<u32>,
 }
 

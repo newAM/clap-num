@@ -62,7 +62,7 @@ mod integration {
     struct Thermostat {
         #[clap(
             long,
-            parse(try_from_str=human_livable_temperature),
+            value_parser=human_livable_temperature,
             allow_hyphen_values=true
         )]
         temperature: i8,
