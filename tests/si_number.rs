@@ -92,7 +92,7 @@ mod integration {
 
     #[derive(Parser)]
     struct Args {
-        #[clap(long, parse(try_from_str=si_number))]
+        #[clap(long, value_parser=si_number::<u128>)]
         resistance: u128,
     }
 

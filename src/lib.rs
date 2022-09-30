@@ -18,7 +18,7 @@
 //!
 //! #[derive(Parser, Debug)]
 //! struct Args {
-//!     #[clap(short, long, parse(try_from_str=parse_frequency))]
+//!     #[clap(short, long, value_parser=parse_frequency)]
 //!     frequency: Option<u32>,
 //! }
 //!
@@ -70,7 +70,7 @@ where
 ///
 /// #[derive(Parser)]
 /// struct Change {
-///     #[clap(long, parse(try_from_str=less_than_100))]
+///     #[clap(long, value_parser=less_than_100)]
 ///     cents: u8,
 /// }
 /// # let args = Change::parse_from(&["", "--cents", "99"]);
@@ -209,7 +209,7 @@ where
 ///
 /// #[derive(Parser)]
 /// struct Args {
-///     #[clap(short, long, parse(try_from_str=si_number))]
+///     #[clap(short, long, value_parser=si_number::<u128>)]
 ///     resistance: u128,
 /// }
 /// # let args = Args::parse_from(&["", "--resistance", "1M1"]);
@@ -301,7 +301,7 @@ where
 ///
 /// #[derive(Parser)]
 /// struct Args {
-///     #[clap(short, long, parse(try_from_str=kilo))]
+///     #[clap(short, long, value_parser=kilo)]
 ///     resistance: u32,
 /// }
 /// # let args = Args::parse_from(&["", "--resistance", "999k999"]);
@@ -347,7 +347,7 @@ where
 ///
 /// #[derive(Parser)]
 /// struct Args {
-///     #[clap(short, long, parse(try_from_str=maybe_hex))]
+///     #[clap(short, long, value_parser=maybe_hex::<u32>)]
 ///     address: u32,
 /// }
 /// # let args = Args::parse_from(&["", "-a", "0x10"]);
@@ -393,7 +393,7 @@ where
 ///
 /// #[derive(Parser)]
 /// struct Args {
-///     #[clap(short, long, parse(try_from_str=address_in_range))]
+///     #[clap(short, long, value_parser=address_in_range)]
 ///     address: u32,
 /// }
 /// # let args = Args::parse_from(&["", "-a", "300"]);

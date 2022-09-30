@@ -1,7 +1,7 @@
 [package]
 name = "clap-num"
 version = "1.0.0"
-rust-version = "1.56"  # update MSRV in CI
+rust-version = "1.60.0"  # update MSRV in CI
 authors = ["Alex Martens <alex@thinglab.org>"]
 keywords = ["argument", "cli", "arg", "parser", "parse"]
 categories = ["command-line-interface"]
@@ -15,4 +15,4 @@ readme = "README.md"
 num-traits = "0.2"
 
 [dev-dependencies]
-clap = { version = "3", features = ["derive"] }
+clap = { version = "4", features = ["derive"] }
