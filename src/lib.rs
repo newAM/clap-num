@@ -3,28 +3,16 @@
 //! This crate contains functions to validate and parse numerical values from
 //! strings provided by [clap].
 //!
-//! # Example
-//!
-//! This example allow values for `--frequency` between 800 Hz and 3.333 MHz,
-//! with SI symbols.
-//!
-//! ```
-//! use clap::Parser;
-//! use clap_num::si_number_range;
-//!
-//! fn parse_frequency(s: &str) -> Result<u32, String> {
-//!     si_number_range(s, 800, 3_333_000)
-//! }
-//!
-//! #[derive(Parser, Debug)]
-//! struct Args {
-//!     #[clap(short, long, value_parser=parse_frequency)]
-//!     frequency: Option<u32>,
-//! }
-//!
-//! let args = Args::parse();
-//! println!("{:?}", args);
-//! ```
+//! * `maybe_hex`
+//!   Validates an unsigned integer value that can be base-10 or base-16.
+//! * `maybe_hex_range`
+//!   Validates an unsigned integer value that can be base-10 or base-16 within a range.
+//! * `number_range`
+//!   Validate a signed or unsigned integer value.
+//! * `si_number`
+//!   Validate a signed or unsigned integer value with a metric prefix.
+//! * `si_number_range`
+//!   Validate a signed or unsigned integer value with a metric prefix within a range.
 //!
 //! [clap]: https://github.com/clap-rs/clap
 #![deny(missing_docs)]
@@ -120,51 +108,85 @@ where
 
 static OVERFLOW_MSG: &str = "number too large to fit in target type";
 
+// helper for mapping errors to strings
 fn stringify<T: std::fmt::Display>(e: T) -> String {
     format!("{}", e)
 }
 
-fn overflow_err<T>(_: T) -> String {
-    OVERFLOW_MSG.to_string()
+#[derive(Copy, Clone)]
+enum SiPrefix {
+    Yotta,
+    Zetta,
+    Exa,
+    Peta,
+    Tera,
+    Giga,
+    Mega,
+    Kilo,
 }
 
-fn find_si_symbol(s: &str) -> (u128, usize, Option<usize>) {
-    for (i, c) in s.chars().enumerate() {
-        match c {
-            'Y' => return (1_000_000_000_000_000_000_000_000, 24, Some(i)),
-            'Z' => return (1_000_000_000_000_000_000_000, 21, Some(i)),
-            'E' => return (1_000_000_000_000_000_000, 18, Some(i)),
-            'P' => return (1_000_000_000_000_000, 15, Some(i)),
-            'T' => return (1_000_000_000_000, 12, Some(i)),
-            'G' => return (1_000_000_000, 9, Some(i)),
-            'M' => return (1_000_000, 6, Some(i)),
-            'k' => return (1_000, 3, Some(i)),
-            _ => continue,
-        };
-    }
-    (1, 0, None)
-}
-
-fn find_decimal(s: &str) -> Option<usize> {
-    for (i, c) in s.chars().enumerate() {
-        if c == '.' {
-            return Some(i);
+impl From<SiPrefix> for char {
+    fn from(p: SiPrefix) -> Self {
+        match p {
+            SiPrefix::Yotta => 'Y',
+            SiPrefix::Zetta => 'Z',
+            SiPrefix::Exa => 'E',
+            SiPrefix::Peta => 'P',
+            SiPrefix::Tera => 'T',
+            SiPrefix::Giga => 'G',
+            SiPrefix::Mega => 'M',
+            SiPrefix::Kilo => 'k',
         }
     }
-    None
 }
 
-fn parse_post<T>(post: &str, digits: usize, decimal: bool) -> Result<T, String>
+impl SiPrefix {
+    fn from_char(symbol: char) -> Option<Self> {
+        match symbol {
+            'Y' => Some(Self::Yotta),
+            'Z' => Some(Self::Zetta),
+            'E' => Some(Self::Exa),
+            'P' => Some(Self::Peta),
+            'T' => Some(Self::Tera),
+            'G' => Some(Self::Giga),
+            'M' => Some(Self::Mega),
+            'k' => Some(Self::Kilo),
+            _ => None,
+        }
+    }
+
+    fn multiplier(&self) -> u128 {
+        match self {
+            SiPrefix::Yotta => 1_000_000_000_000_000_000_000_000,
+            SiPrefix::Zetta => 1_000_000_000_000_000_000_000,
+            SiPrefix::Exa => 1_000_000_000_000_000_000,
+            SiPrefix::Peta => 1_000_000_000_000_000,
+            SiPrefix::Tera => 1_000_000_000_000,
+            SiPrefix::Giga => 1_000_000_000,
+            SiPrefix::Mega => 1_000_000,
+            SiPrefix::Kilo => 1_000,
+        }
+    }
+
+    fn digits(&self) -> usize {
+        match self {
+            SiPrefix::Yotta => 24,
+            SiPrefix::Zetta => 21,
+            SiPrefix::Exa => 18,
+            SiPrefix::Peta => 15,
+            SiPrefix::Tera => 12,
+            SiPrefix::Giga => 9,
+            SiPrefix::Mega => 6,
+            SiPrefix::Kilo => 3,
+        }
+    }
+}
+
+fn parse_post<T>(mut post: String, digits: usize) -> Result<T, String>
 where
     <T as std::str::FromStr>::Err: std::fmt::Display,
     T: std::cmp::PartialOrd + std::str::FromStr,
 {
-    // strip the leading Si character or decimal
-    let mut post = post[1..].to_string();
-    // pop the Si character if a decimal value
-    if decimal {
-        post.pop();
-    }
     if post.len() > digits {
         Err(String::from("not an integer"))
     } else {
@@ -237,43 +259,43 @@ where
     T: TryFrom<u128>,
     T: Zero,
 {
-    let (multiplier, digits, si_index) = find_si_symbol(s);
-    let multiplier = T::try_from(multiplier).map_err(overflow_err)?;
-
     // contains SI symbol
-    if let Some(idx) = si_index {
-        if idx == 0 {
+    if let Some(si_prefix) = s.chars().find_map(SiPrefix::from_char) {
+        let multiplier: T = T::try_from(si_prefix.multiplier()).map_err(|_| OVERFLOW_MSG)?;
+
+        let (pre_si, post_si) = s.split_once(char::from(si_prefix)).unwrap();
+
+        if pre_si.is_empty() {
             return Err("no value found before SI symbol".to_string());
-        };
-        let (pre_si, post_si) = s.split_at(idx);
+        }
 
         // in the format of "1k234" for 1_234
-        let (pre, post) = if post_si.len() > 1 {
+        let (pre, post) = if !post_si.is_empty() {
             (
                 pre_si.parse::<T>().map_err(stringify)?,
-                parse_post(post_si, digits, false)?,
+                parse_post(post_si.to_string(), si_prefix.digits())?,
             )
+
         // in the format of "1.234k" for 1_234
-        } else if let Some(idx) = find_decimal(pre_si) {
-            let (pre_dec, post_dec) = s.split_at(idx);
-            let post_dec = parse_post(post_dec, digits, true)?;
+        } else if let Some((pre_dec, post_dec)) = s.split_once('.') {
+            let mut post_dec: String = post_dec.to_string();
+            post_dec.pop(); // remove SI symbol
+            let post_dec = parse_post(post_dec, si_prefix.digits())?;
             (pre_dec.parse::<T>().map_err(stringify)?, post_dec)
-        // no decimal value
+
+        // no decimal
         } else {
             (pre_si.parse::<T>().map_err(stringify)?, T::zero())
         };
 
-        let pre = pre
-            .checked_mul(&multiplier)
-            .ok_or_else(|| OVERFLOW_MSG.to_string())?;
+        let pre = pre.checked_mul(&multiplier).ok_or(OVERFLOW_MSG)?;
 
         if pre >= T::zero() {
             pre.checked_add(&post)
-                .ok_or_else(|| OVERFLOW_MSG.to_string())
         } else {
             pre.checked_sub(&post)
-                .ok_or_else(|| OVERFLOW_MSG.to_string())
         }
+        .ok_or_else(|| OVERFLOW_MSG.to_string())
     } else {
         // no SI symbol, parse normally
         s.parse::<T>().map_err(stringify)
@@ -283,7 +305,7 @@ where
 /// Validate a signed or unsigned integer value with a [metric prefix] within
 /// a range.
 ///
-/// This effectively combines [`si_number`] and [`number_range`], see the
+/// This combines [`si_number`] and [`number_range`], see the
 /// documentation for those functions for details.
 ///
 /// # Example
@@ -309,8 +331,6 @@ where
 /// ```
 ///
 /// [metric prefix]: https://en.wikipedia.org/wiki/Metric_prefix
-/// [`si_number`]: ./fn.si_number.html
-/// [`number_range`]: ./fn.number_range.html
 pub fn si_number_range<T: Ord + PartialOrd + std::fmt::Display>(
     s: &str,
     min: T,
@@ -375,7 +395,7 @@ where
 /// Validates an unsigned integer value that can be base-10 or base-16 within
 /// a range.
 ///
-/// This effectively combines [`maybe_hex`] and [`number_range`], see the
+/// This combines [`maybe_hex`] and [`number_range`], see the
 /// documentation for those functions for details.
 ///
 /// # Example
@@ -399,9 +419,6 @@ where
 /// # let args = Args::parse_from(&["", "-a", "300"]);
 /// # assert_eq!(args.address, 300);
 /// ```
-///
-/// [`maybe_hex`]: ./fn.maybe_hex.html
-/// [`number_range`]: ./fn.number_range.html
 pub fn maybe_hex_range<T: Num + sign::Unsigned>(s: &str, min: T, max: T) -> Result<T, String>
 where
     <T as num_traits::Num>::FromStrRadixErr: std::fmt::Display,
