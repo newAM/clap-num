@@ -9,27 +9,15 @@ clap number parsers.
 This crate contains functions to validate and parse numerical values from
 strings provided by [clap].
 
-## Example
-
-This example allow values for `--frequency` between 800 Hz and 3.333 MHz,
-with SI symbols.
-
-```rust
-use clap::Parser;
-use clap_num::si_number_range;
-
-fn parse_frequency(s: &str) -> Result<u32, String> {
-    si_number_range(s, 800, 3_333_000)
-}
-
-#[derive(Parser, Debug)]
-struct Args {
-    #[clap(short, long, value_parser=parse_frequency)]
-    frequency: Option<u32>,
-}
-
-let args = Args::parse();
-println!("{:?}", args);
-```
+* `maybe_hex`
+  Validates an unsigned integer value that can be base-10 or base-16.
+* `maybe_hex_range`
+  Validates an unsigned integer value that can be base-10 or base-16 within a range.
+* `number_range`
+  Validate a signed or unsigned integer value.
+* `si_number`
+  Validate a signed or unsigned integer value with a metric prefix.
+* `si_number_range`
+  Validate a signed or unsigned integer value with a metric prefix within a range.
 
 [clap]: https://github.com/clap-rs/clap

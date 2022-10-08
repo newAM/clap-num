@@ -1,6 +1,16 @@
 use clap::Parser;
 use clap_num::si_number;
 
+#[test]
+fn utf8_byte_index_not_char_boundry() {
+    let _ = si_number::<u64>("˲TP");
+}
+
+#[test]
+fn utf8_byte_index_not_char_boundry_with_decimal() {
+    let _ = si_number::<u64>("˲.E");
+}
+
 // standalone basic tests
 #[cfg(test)]
 mod basic {
