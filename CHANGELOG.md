@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.2] - 2022-10-08
 ### Fixed
 - Fixed panics when parsing SI numbers with multi-byte UTF-8 sequences.
 
@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `maybe_hex` and `maybe_hex_range` functions.
 - Added a changelog.
 
-[Unreleased]: https://github.com/newAM/clap-num/compare/1.0.1...HEAD
+[Unreleased]: https://github.com/newAM/clap-num/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/newAM/clap-num/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/newAM/clap-num/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/newAM/clap-num/compare/0.2.0...1.0.0
 [0.2.0]: https://github.com/newAM/clap-num/releases/tag/0.2.0
