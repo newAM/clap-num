@@ -27,9 +27,9 @@ where
     <T as std::str::FromStr>::Err: std::fmt::Display,
 {
     if val > max {
-        Err(format!("exceeds maximum of {}", max))
+        Err(format!("exceeds maximum of {max}"))
     } else if val < min {
-        Err(format!("exceeds minimum of {}", min))
+        Err(format!("exceeds minimum of {min}"))
     } else {
         Ok(val)
     }
@@ -101,7 +101,7 @@ where
     T: FromStr,
     <T as std::str::FromStr>::Err: std::fmt::Display,
 {
-    debug_assert!(min <= max, "minimum of {} exceeds maximum of {}", min, max);
+    debug_assert!(min <= max, "minimum of {min} exceeds maximum of {max}");
     let val = s.parse::<T>().map_err(stringify)?;
     check_range(val, min, max)
 }
@@ -110,7 +110,7 @@ static OVERFLOW_MSG: &str = "number too large to fit in target type";
 
 // helper for mapping errors to strings
 fn stringify<T: std::fmt::Display>(e: T) -> String {
-    format!("{}", e)
+    format!("{e}")
 }
 
 #[derive(Copy, Clone)]
@@ -388,7 +388,7 @@ where
 
     match result {
         Ok(v) => Ok(v),
-        Err(e) => Err(format!("{}", e)),
+        Err(e) => Err(format!("{e}")),
     }
 }
 
