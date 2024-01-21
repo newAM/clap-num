@@ -40,6 +40,7 @@ mod basic {
     pos!(one, "1", 1u8);
     pos!(neg_one, "-1", -1i8);
     pos!(limit, "255", 255u8);
+    pos!(underscores, "1_000_000", 1_000_000u32);
 
     // basic positive path with Si suffix
     pos!(kilo, "1k", 1_000u16);
