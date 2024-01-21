@@ -125,21 +125,6 @@ enum SiPrefix {
     Kilo,
 }
 
-impl From<SiPrefix> for char {
-    fn from(p: SiPrefix) -> Self {
-        match p {
-            SiPrefix::Yotta => 'Y',
-            SiPrefix::Zetta => 'Z',
-            SiPrefix::Exa => 'E',
-            SiPrefix::Peta => 'P',
-            SiPrefix::Tera => 'T',
-            SiPrefix::Giga => 'G',
-            SiPrefix::Mega => 'M',
-            SiPrefix::Kilo => 'k',
-        }
-    }
-}
-
 impl SiPrefix {
     fn from_char(symbol: char) -> Option<Self> {
         match symbol {
@@ -150,7 +135,7 @@ impl SiPrefix {
             'T' => Some(Self::Tera),
             'G' => Some(Self::Giga),
             'M' => Some(Self::Mega),
-            'k' => Some(Self::Kilo),
+            'k' | 'K' => Some(Self::Kilo),
             _ => None,
         }
     }
@@ -260,10 +245,12 @@ where
     T: Zero,
 {
     // contains SI symbol
-    if let Some(si_prefix) = s.chars().find_map(SiPrefix::from_char) {
+    if let Some(si_prefix_index) = s.find(|c| SiPrefix::from_char(c).is_some()) {
+        let si_prefix = SiPrefix::from_char(s.as_bytes()[si_prefix_index] as char).unwrap();
         let multiplier: T = T::try_from(si_prefix.multiplier()).map_err(|_| OVERFLOW_MSG)?;
 
-        let (pre_si, post_si) = s.split_once(char::from(si_prefix)).unwrap();
+        let (pre_si, post_si) = s.split_at(si_prefix_index);
+        let post_si = &post_si[1..];
 
         if pre_si.is_empty() {
             return Err("no value found before SI symbol".to_string());
