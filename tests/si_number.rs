@@ -29,8 +29,8 @@ mod basic {
         ($NAME:ident, $VAL:expr, $TYPE:ident, $RESULT:expr) => {
             #[test]
             fn $NAME() {
-                let num: Result<$TYPE, String> = si_number($VAL);
-                assert_eq!(num, Err(String::from($RESULT)));
+                let num: Result<$TYPE, _> = si_number($VAL);
+                assert_eq!(num, Err($RESULT.into()));
             }
         };
     }

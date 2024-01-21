@@ -20,16 +20,17 @@
 use core::{iter, str::FromStr};
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
+use std::borrow::Cow;
 
-fn check_range<T: Ord + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, String>
+fn check_range<T: Ord + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, Cow<'static, str>>
 where
     T: FromStr,
     <T as FromStr>::Err: std::fmt::Display,
 {
     if val > max {
-        Err(format!("exceeds maximum of {max}"))
+        Err(format!("exceeds maximum of {max}").into())
     } else if val < min {
-        Err(format!("exceeds minimum of {min}"))
+        Err(format!("exceeds minimum of {min}").into())
     } else {
         Ok(val)
     }
@@ -49,10 +50,11 @@ where
 /// (inclusive).
 ///
 /// ```
+/// use std::borrow::Cow;
 /// use clap::Parser;
 /// use clap_num::number_range;
 ///
-/// fn less_than_100(s: &str) -> Result<u8, String> {
+/// fn less_than_100(s: &str) -> Result<u8, Cow<'static, str>> {
 ///     number_range(s, 0, 99)
 /// }
 ///
@@ -96,7 +98,7 @@ pub fn number_range<T: Ord + PartialOrd + std::fmt::Display>(
     s: &str,
     min: T,
     max: T,
-) -> Result<T, String>
+) -> Result<T, Cow<'static, str>>
 where
     T: FromStr,
     <T as FromStr>::Err: std::fmt::Display,
@@ -109,8 +111,8 @@ where
 static OVERFLOW_MSG: &str = "number too large to fit in target type";
 
 // helper for mapping errors to strings
-fn stringify<T: std::fmt::Display>(e: T) -> String {
-    format!("{e}")
+fn stringify<T: std::fmt::Display>(e: T) -> Cow<'static, str> {
+    format!("{e}").into()
 }
 
 #[derive(Copy, Clone)]
@@ -167,7 +169,7 @@ impl SiPrefix {
     }
 }
 
-fn parse_post<T>(mut post: String, digits: usize) -> Result<T, String>
+fn parse_post<T>(mut post: String, digits: usize) -> Result<T, Cow<'static, str>>
 where
     <T as FromStr>::Err: std::fmt::Display,
     T: PartialOrd + FromStr,
@@ -176,7 +178,7 @@ where
         post.extend(iter::repeat('0').take(zeros));
         post.parse::<T>().map_err(stringify)
     } else {
-        Err(String::from("not an integer"))
+        Err("not an integer".into())
     }
 }
 
@@ -230,7 +232,7 @@ where
 /// ```
 ///
 /// [metric prefix]: https://en.wikipedia.org/wiki/Metric_prefix
-pub fn si_number<T>(s: &str) -> Result<T, String>
+pub fn si_number<T>(s: &str) -> Result<T, Cow<'static, str>>
 where
     <T as TryFrom<u128>>::Error: std::fmt::Display,
     <T as FromStr>::Err: std::fmt::Display,
@@ -251,7 +253,7 @@ where
         let post_si = &post_si[1..];
 
         if pre_si.is_empty() {
-            return Err("no value found before SI symbol".to_string());
+            return Err("no value found before SI symbol".into());
         }
 
         // in the format of "1k234" for 1_234
@@ -280,7 +282,7 @@ where
         } else {
             pre.checked_sub(&post)
         }
-        .ok_or_else(|| OVERFLOW_MSG.to_string())
+        .ok_or_else(|| OVERFLOW_MSG.into())
     } else {
         // no SI symbol, parse normally
         s.chars()
@@ -303,10 +305,11 @@ where
 /// resistances from 1k to 999.999k.
 ///
 /// ```
+/// use std::borrow::Cow;
 /// use clap::Parser;
 /// use clap_num::si_number_range;
 ///
-/// fn kilo(s: &str) -> Result<u32, String> {
+/// fn kilo(s: &str) -> Result<u32, Cow<'static, str>> {
 ///     si_number_range(s, 1_000, 999_999)
 /// }
 ///
@@ -324,7 +327,7 @@ pub fn si_number_range<T: Ord + PartialOrd + std::fmt::Display>(
     s: &str,
     min: T,
     max: T,
-) -> Result<T, String>
+) -> Result<T, Cow<'static, str>>
 where
     <T as TryFrom<u128>>::Error: std::fmt::Display,
     <T as FromStr>::Err: std::fmt::Display,
@@ -362,7 +365,7 @@ where
 /// # let args = Args::parse_from(&["", "-a", "0x10"]);
 /// # assert_eq!(args.address, 16);
 /// ```
-pub fn maybe_hex<T: Num + sign::Unsigned>(s: &str) -> Result<T, String>
+pub fn maybe_hex<T: Num + sign::Unsigned>(s: &str) -> Result<T, Cow<'static, str>>
 where
     <T as Num>::FromStrRadixErr: std::fmt::Display,
 {
@@ -391,10 +394,11 @@ where
 /// addresses from `0x100` to `0x200`.
 ///
 /// ```
+/// use std::borrow::Cow;
 /// use clap::Parser;
 /// use clap_num::maybe_hex_range;
 ///
-/// fn address_in_range(s: &str) -> Result<u32, String> {
+/// fn address_in_range(s: &str) -> Result<u32, Cow<'static, str>> {
 ///     maybe_hex_range(s, 0x100, 0x200)
 /// }
 ///
@@ -406,7 +410,11 @@ where
 /// # let args = Args::parse_from(&["", "-a", "300"]);
 /// # assert_eq!(args.address, 300);
 /// ```
-pub fn maybe_hex_range<T: Num + sign::Unsigned>(s: &str, min: T, max: T) -> Result<T, String>
+pub fn maybe_hex_range<T: Num + sign::Unsigned>(
+    s: &str,
+    min: T,
+    max: T,
+) -> Result<T, Cow<'static, str>>
 where
     <T as Num>::FromStrRadixErr: std::fmt::Display,
     <T as FromStr>::Err: std::fmt::Display,
