@@ -31,7 +31,7 @@ mod basic {
     pos!(max_limit, "65535", 0, u16::MAX, u16::MAX);
 
     neg!(decimal, "1.1", -10i8, 10i8, "invalid digit found in string");
-    neg!(min, "-1", 0i8, 0i8, "exceeds minimum of 0");
+    neg!(min, "-1", 0i8, 0i8, "less than minimum of 0");
     neg!(max, "1", 0i8, 0i8, "exceeds maximum of 0");
     neg!(
         overflow,
@@ -101,6 +101,6 @@ mod integration {
     pos!(positive_limit, "60", 60);
     pos!(negative_limit, "-40", -40);
 
-    neg!(too_small, "-41", "exceeds minimum of -40");
+    neg!(too_small, "-41", "less than minimum of -40");
     neg!(too_large, "61", "exceeds maximum of 60");
 }

@@ -29,7 +29,7 @@ where
     if val > max {
         Err(format!("exceeds maximum of {max}"))
     } else if val < min {
-        Err(format!("exceeds minimum of {min}"))
+        Err(format!("less than minimum of {min}"))
     } else {
         Ok(val)
     }
