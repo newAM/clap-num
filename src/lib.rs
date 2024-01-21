@@ -172,11 +172,11 @@ where
     <T as FromStr>::Err: std::fmt::Display,
     T: PartialOrd + FromStr,
 {
-    if post.len() > digits {
-        Err(String::from("not an integer"))
-    } else {
-        post.extend(iter::repeat('0').take(digits - post.len()));
+    if let Some(zeros) = digits.checked_sub(post.len()) {
+        post.extend(iter::repeat('0').take(zeros));
         post.parse::<T>().map_err(stringify)
+    } else {
+        Err(String::from("not an integer"))
     }
 }
 
