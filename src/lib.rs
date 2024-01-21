@@ -298,7 +298,11 @@ where
         .ok_or_else(|| OVERFLOW_MSG.to_string())
     } else {
         // no SI symbol, parse normally
-        s.parse::<T>().map_err(stringify)
+        s.chars()
+            .filter(|&c| c != '_')
+            .collect::<String>()
+            .parse::<T>()
+            .map_err(stringify)
     }
 }
 
