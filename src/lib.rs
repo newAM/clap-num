@@ -17,14 +17,14 @@
 //! [clap]: https://github.com/clap-rs/clap
 #![deny(missing_docs)]
 
-use core::str::FromStr;
+use core::{iter, str::FromStr};
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
 
 fn check_range<T: Ord + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, String>
 where
     T: FromStr,
-    <T as std::str::FromStr>::Err: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
 {
     if val > max {
         Err(format!("exceeds maximum of {max}"))
@@ -99,7 +99,7 @@ pub fn number_range<T: Ord + PartialOrd + std::fmt::Display>(
 ) -> Result<T, String>
 where
     T: FromStr,
-    <T as std::str::FromStr>::Err: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
 {
     debug_assert!(min <= max, "minimum of {min} exceeds maximum of {max}");
     let val = s.parse::<T>().map_err(stringify)?;
@@ -184,15 +184,13 @@ impl SiPrefix {
 
 fn parse_post<T>(mut post: String, digits: usize) -> Result<T, String>
 where
-    <T as std::str::FromStr>::Err: std::fmt::Display,
-    T: std::cmp::PartialOrd + std::str::FromStr,
+    <T as FromStr>::Err: std::fmt::Display,
+    T: PartialOrd + FromStr,
 {
     if post.len() > digits {
         Err(String::from("not an integer"))
     } else {
-        while post.len() < digits {
-            post.push('0');
-        }
+        post.extend(iter::repeat('0').take(digits - post.len()));
         post.parse::<T>().map_err(stringify)
     }
 }
@@ -249,13 +247,13 @@ where
 /// [metric prefix]: https://en.wikipedia.org/wiki/Metric_prefix
 pub fn si_number<T>(s: &str) -> Result<T, String>
 where
-    <T as std::convert::TryFrom<u128>>::Error: std::fmt::Display,
-    <T as std::str::FromStr>::Err: std::fmt::Display,
+    <T as TryFrom<u128>>::Error: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
     T: CheckedAdd,
     T: CheckedMul,
     T: CheckedSub,
     T: FromStr,
-    T: std::cmp::PartialOrd,
+    T: PartialOrd,
     T: TryFrom<u128>,
     T: Zero,
 {
@@ -337,13 +335,13 @@ pub fn si_number_range<T: Ord + PartialOrd + std::fmt::Display>(
     max: T,
 ) -> Result<T, String>
 where
-    <T as std::convert::TryFrom<u128>>::Error: std::fmt::Display,
-    <T as std::str::FromStr>::Err: std::fmt::Display,
+    <T as TryFrom<u128>>::Error: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
     T: CheckedAdd,
     T: CheckedMul,
     T: CheckedSub,
     T: FromStr,
-    T: std::cmp::PartialOrd,
+    T: PartialOrd,
     T: TryFrom<u128>,
     T: Zero,
 {
@@ -375,21 +373,19 @@ where
 /// ```
 pub fn maybe_hex<T: Num + sign::Unsigned>(s: &str) -> Result<T, String>
 where
-    <T as num_traits::Num>::FromStrRadixErr: std::fmt::Display,
+    <T as Num>::FromStrRadixErr: std::fmt::Display,
 {
     const HEX_PREFIX: &str = "0x";
+    const HEX_PREFIX_UPPER: &str = "0X";
     const HEX_PREFIX_LEN: usize = HEX_PREFIX.len();
 
-    let result = if s.to_ascii_lowercase().starts_with(HEX_PREFIX) {
+    let result = if s.starts_with(HEX_PREFIX) || s.starts_with(HEX_PREFIX_UPPER) {
         T::from_str_radix(&s[HEX_PREFIX_LEN..], 16)
     } else {
         T::from_str_radix(s, 10)
     };
 
-    match result {
-        Ok(v) => Ok(v),
-        Err(e) => Err(format!("{e}")),
-    }
+    result.map_err(stringify)
 }
 
 /// Validates an unsigned integer value that can be base-10 or base-16 within
@@ -421,11 +417,11 @@ where
 /// ```
 pub fn maybe_hex_range<T: Num + sign::Unsigned>(s: &str, min: T, max: T) -> Result<T, String>
 where
-    <T as num_traits::Num>::FromStrRadixErr: std::fmt::Display,
-    <T as std::str::FromStr>::Err: std::fmt::Display,
+    <T as Num>::FromStrRadixErr: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
     T: FromStr,
     T: std::fmt::Display,
-    T: std::cmp::Ord,
+    T: Ord,
 {
     let val = maybe_hex(s)?;
     check_range(val, min, max)
