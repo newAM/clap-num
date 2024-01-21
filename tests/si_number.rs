@@ -44,6 +44,7 @@ mod basic {
 
     // basic positive path with Si suffix
     pos!(kilo, "1k", 1_000u16);
+    pos!(kilo_caps, "1K", 1_000u16);
     pos!(mega, "1M", 1_000_000u32);
     pos!(giga, "1G", 1_000_000_000u64);
     pos!(tera, "1T", 1_000_000_000_000u64);
@@ -72,7 +73,7 @@ mod basic {
 
     pos!(dec_ending_si, "1.k", 1_000u16);
 
-    neg!(mixed_1, "1K23.45", u16, "invalid digit found in string");
+    neg!(mixed_1, "1K23.45", u16, "not an integer");
     neg!(mixed_2, "1.23k45", u16, "invalid digit found in string");
 
     neg!(trailing_dec, "1.", u8, "invalid digit found in string");
