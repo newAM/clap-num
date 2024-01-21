@@ -28,7 +28,7 @@ mod basic {
     pos!(zero, "0", 0u8, 0u8, 0u8);
     pos!(neg, "-1", -10i8, 10i8, -1);
     pos!(min_limit, "-5", -5i8, -5i8, -5i8);
-    pos!(max_limit, "65535", 0, std::u16::MAX, std::u16::MAX);
+    pos!(max_limit, "65535", 0, u16::MAX, u16::MAX);
 
     neg!(decimal, "1.1", -10i8, 10i8, "invalid digit found in string");
     neg!(min, "-1", 0i8, 0i8, "exceeds minimum of 0");
