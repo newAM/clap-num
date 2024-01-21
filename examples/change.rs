@@ -1,7 +1,8 @@
 use clap::Parser;
 use clap_num::number_range;
+use std::borrow::Cow;
 
-fn less_than_100(s: &str) -> Result<u8, String> {
+fn less_than_100(s: &str) -> Result<u8, Cow<'static, str>> {
     number_range(s, 0, 99)
 }
 

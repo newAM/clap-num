@@ -19,7 +19,7 @@ mod basic {
         ($NAME:ident, $VAL:expr, $MIN:expr, $MAX:expr, $RESULT:expr) => {
             #[test]
             fn $NAME() {
-                assert_eq!(number_range($VAL, $MIN, $MAX), Err(String::from($RESULT)));
+                assert_eq!(number_range($VAL, $MIN, $MAX), Err($RESULT.into()));
             }
         };
     }
@@ -53,8 +53,9 @@ mod basic {
 #[cfg(test)]
 mod integration {
     use super::*;
+    use std::borrow::Cow;
 
-    fn human_livable_temperature(s: &str) -> Result<i8, String> {
+    fn human_livable_temperature(s: &str) -> Result<i8, Cow<'static, str>> {
         number_range(s, -40, 60)
     }
 

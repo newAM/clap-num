@@ -19,8 +19,8 @@ mod basic {
         ($NAME:ident, $VAL:expr, $RESULT:expr) => {
             #[test]
             fn $NAME() {
-                let val: Result<u64, String> = maybe_hex($VAL);
-                assert_eq!(val, Err(String::from($RESULT)));
+                let val: Result<u64, _> = maybe_hex($VAL);
+                assert_eq!(val, Err($RESULT.into()));
             }
         };
     }
