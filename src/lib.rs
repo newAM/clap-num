@@ -21,10 +21,12 @@ use core::{iter, str::FromStr};
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
 
-fn check_range<T: Ord + std::fmt::Display>(val: T, min: T, max: T) -> Result<T, String>
+fn check_range<T>(val: T, min: T, max: T) -> Result<T, String>
 where
     T: FromStr,
     <T as FromStr>::Err: std::fmt::Display,
+    T: Ord,
+    T: std::fmt::Display,
 {
     if val > max {
         Err(format!("exceeds maximum of {max}"))
@@ -92,14 +94,13 @@ where
 /// ```text
 /// error: Invalid value for '--cents <cents>': exceeds maximum of 99
 /// ```
-pub fn number_range<T: Ord + PartialOrd + std::fmt::Display>(
-    s: &str,
-    min: T,
-    max: T,
-) -> Result<T, String>
+pub fn number_range<T>(s: &str, min: T, max: T) -> Result<T, String>
 where
     T: FromStr,
     <T as FromStr>::Err: std::fmt::Display,
+    T: Ord,
+    T: PartialOrd,
+    T: std::fmt::Display,
 {
     debug_assert!(min <= max, "minimum of {min} exceeds maximum of {max}");
     let val = s.parse::<T>().map_err(stringify)?;
@@ -320,11 +321,7 @@ where
 /// ```
 ///
 /// [metric prefix]: https://en.wikipedia.org/wiki/Metric_prefix
-pub fn si_number_range<T: Ord + PartialOrd + std::fmt::Display>(
-    s: &str,
-    min: T,
-    max: T,
-) -> Result<T, String>
+pub fn si_number_range<T>(s: &str, min: T, max: T) -> Result<T, String>
 where
     <T as TryFrom<u128>>::Error: std::fmt::Display,
     <T as FromStr>::Err: std::fmt::Display,
@@ -335,6 +332,9 @@ where
     T: PartialOrd,
     T: TryFrom<u128>,
     T: Zero,
+    T: Ord,
+    T: PartialOrd,
+    T: std::fmt::Display,
 {
     let val = si_number(s)?;
     check_range(val, min, max)
@@ -406,13 +406,15 @@ where
 /// # let args = Args::parse_from(&["", "-a", "300"]);
 /// # assert_eq!(args.address, 300);
 /// ```
-pub fn maybe_hex_range<T: Num + sign::Unsigned>(s: &str, min: T, max: T) -> Result<T, String>
+pub fn maybe_hex_range<T>(s: &str, min: T, max: T) -> Result<T, String>
 where
     <T as Num>::FromStrRadixErr: std::fmt::Display,
     <T as FromStr>::Err: std::fmt::Display,
     T: FromStr,
     T: std::fmt::Display,
     T: Ord,
+    T: Num,
+    T: sign::Unsigned,
 {
     let val = maybe_hex(s)?;
     check_range(val, min, max)
