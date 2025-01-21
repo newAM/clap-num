@@ -39,4 +39,3 @@ mod basic {
     );
     neg!(non_bin_digit, "0b12G", "invalid digit found in string");
 }
-

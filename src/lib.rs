@@ -448,13 +448,13 @@ where
 {
     const BIN_PREFIX: &str = "0b";
     const BIN_PREFIX_LEN: usize = BIN_PREFIX.len();
-    
+
     let result = if s.starts_with(BIN_PREFIX) {
         T::from_str_radix(&s[BIN_PREFIX_LEN..], 2)
     } else {
         T::from_str_radix(s, 10)
     };
-    
+
     result.map_err(stringify)
 }
 
