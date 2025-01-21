@@ -419,3 +419,82 @@ where
     let val = maybe_hex(s)?;
     check_range(val, min, max)
 }
+
+/// Validates an unsigned integer value that can be base-10 or base-2.
+///
+/// The number is assumed to be base-10 by default, it is parsed as binary if the
+/// number is prefixed with `0b` (case sensitive!).
+///
+/// # Example
+///
+/// This allows base-10 addresses to be passed normally, or base-2 values to
+/// be passed when prefixed with `0b`.
+///
+/// ```
+/// use clap::Parser;
+/// use clap_num::maybe_bin;
+///
+/// #[derive(Parser)]
+/// struct Args {
+///     #[clap(short, long, value_parser=maybe_bin::<u8>)]
+///     address: u8,
+/// }
+/// # let args = Args::parse_from(&["", "-a", "0b1001"]);
+/// # assert_eq!(args.address, 9);
+/// ```
+pub fn maybe_bin<T: Num + sign::Unsigned>(s: &str) -> Result<T, String>
+where
+    <T as Num>::FromStrRadixErr: std::fmt::Display,
+{
+    const BIN_PREFIX: &str = "0b";
+    const BIN_PREFIX_LEN: usize = BIN_PREFIX.len();
+    
+    let result = if s.starts_with(BIN_PREFIX) {
+        T::from_str_radix(&s[BIN_PREFIX_LEN..], 2)
+    } else {
+        T::from_str_radix(s, 10)
+    };
+    
+    result.map_err(stringify)
+}
+
+/// Validates an unsigned integer value that can be base-10 or base-2 within
+/// a range.
+///
+/// This combines [`maybe_bin`] and [`number_range`], see the
+/// documentation of those functions for details.
+///
+/// # Example
+///
+/// This extends the example in [`maybe_bin`], and only allows a range of
+/// addresses from 2 (`0b10`) to 15 (`0b1111`).
+///
+/// ```
+/// use clap::Parser;
+/// use clap_num::maybe_bin_range;
+///
+/// fn address_in_range(s: &str) -> Result<u8, String> {
+///     maybe_bin_range(s, 0b10, 0b1111)
+/// }
+///
+/// #[derive(Parser)]
+/// struct Args {
+///     #[clap(short, long, value_parser=address_in_range)]
+///     address: u8,
+/// }
+/// # let args = Args::parse_from(&["", "-a", "0b1001"]);
+/// # assert_eq!(args.address, 9);
+/// ```
+pub fn maybe_bin_range<T>(s: &str, min: T, max: T) -> Result<T, String>
+where
+    <T as Num>::FromStrRadixErr: std::fmt::Display,
+    <T as FromStr>::Err: std::fmt::Display,
+    T: FromStr,
+    T: std::fmt::Display,
+    T: Ord,
+    T: Num,
+    T: sign::Unsigned,
+{
+    let val = maybe_bin(s)?;
+    check_range(val, min, max)
+}
