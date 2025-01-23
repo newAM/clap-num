@@ -13,6 +13,10 @@ strings provided by [clap].
   Validates an unsigned integer value that can be base-10 or base-16.
 * `maybe_hex_range`
   Validates an unsigned integer value that can be base-10 or base-16 within a range.
+* `maybe_bin`
+  Validates an unsigned integer value that can be base-10 or base-2.
+* `maybe_bin_range`
+  Validates an unsigned integer value that can be base-10 or base-2 within a range.
 * `number_range`
   Validate a signed or unsigned integer value.
 * `si_number`
