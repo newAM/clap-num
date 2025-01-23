@@ -30,6 +30,7 @@ mod basic {
     pos!(zero_bin, "0b0", 0u16);
     pos!(one_dec, "1", 1u64);
     pos!(one_bin, "0b1", 1u64);
+    pos!(aa, "0b10101010", 0xaau64);
     pos!(leading_zero, "001", 1u64);
 
     neg!(
