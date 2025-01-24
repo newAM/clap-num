@@ -10,13 +10,13 @@ This crate contains functions to validate and parse numerical values from
 strings provided by [clap].
 
 * `maybe_hex`
-  Validates an unsigned integer value that can be base-10 or base-16.
+  Validate an unsigned integer value that can be base-10 or base-16.
 * `maybe_hex_range`
-  Validates an unsigned integer value that can be base-10 or base-16 within a range.
+  Validate an unsigned integer value that can be base-10 or base-16 within a range.
 * `maybe_bin`
-  Validates an unsigned integer value that can be base-10 or base-2.
+  Validate an unsigned integer value that can be base-10 or base-2.
 * `maybe_bin_range`
-  Validates an unsigned integer value that can be base-10 or base-2 within a range.
+  Validate an unsigned integer value that can be base-10 or base-2 within a range.
 * `number_range`
   Validate a signed or unsigned integer value.
 * `si_number`
