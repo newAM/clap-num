@@ -42,6 +42,7 @@ mod basic {
     );
     neg!(nan, "nan", 0, 0, "invalid digit found in string");
 
+    #[cfg(debug_assertions)]
     #[test]
     #[should_panic]
     fn min_max_debug_assert() {
