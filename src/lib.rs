@@ -21,7 +21,7 @@
 //! [clap]: https://github.com/clap-rs/clap
 #![deny(missing_docs)]
 
-use core::{iter, str::FromStr};
+use core::str::FromStr;
 use num_traits::identities::Zero;
 use num_traits::{sign, CheckedAdd, CheckedMul, CheckedSub, Num};
 
@@ -178,7 +178,7 @@ where
     T: PartialOrd + FromStr,
 {
     if let Some(zeros) = digits.checked_sub(post.len()) {
-        post.extend(iter::repeat('0').take(zeros));
+        post.extend(std::iter::repeat_n('0', zeros));
         post.parse::<T>().map_err(stringify)
     } else {
         Err(String::from("not an integer"))
