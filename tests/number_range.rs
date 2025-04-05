@@ -37,7 +37,7 @@ mod basic {
         overflow,
         "256",
         0,
-        std::u8::MAX,
+        u8::MAX,
         "number too large to fit in target type"
     );
     neg!(nan, "nan", 0, 0, "invalid digit found in string");
